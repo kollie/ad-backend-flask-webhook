@@ -20,7 +20,7 @@ app.config["DEBUG"] = True
 @app.route("/", methods=["GET"])
 def hello():
     # return "Welcome to the API that predicts revenues from advertising!"
-    return "The webhook is working! I'm so happy! :) "
+    return "The webhook is working! Let's do another test :) "
 
 
 # Route to endpoint /api/v1/predict
