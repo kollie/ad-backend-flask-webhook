@@ -247,8 +247,14 @@ def webhook():
                 subprocess.run(["git", "pull", clone_url], check=True)
 
                 # Run Database Migrations
-                run_migrations()
-                
+                print("[INFO] Initializing migrations...")
+                subprocess.run(["flask", "db", "init"], check=True)
+
+                subprocess.run(["flask", "db", "migrate", "-m", "Auto migration"], check=True)
+                subprocess.run(["flask", "db", "upgrade"], check=True)
+
+                print("[SUCCESS] Database migrations completed.")
+
                 subprocess.run(
                     ["touch", servidor_web], check=True
                 )  # Trick to automatically reload PythonAnywhere WebServer
