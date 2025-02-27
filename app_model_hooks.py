@@ -235,8 +235,10 @@ def test_prediction(user_tokens):
         else:
             print(f"[ERROR] Diet prediction for {username} failed: {response.json()}")
 
+
 @app.route("/webhook", methods=["POST"])
 def webhook():
+    """GitHub Webhook to pull latest code and reload the server"""
     if request.is_json:
         payload = request.json
 
@@ -244,20 +246,22 @@ def webhook():
             repo_name = payload["repository"]["name"]
             clone_url = payload["repository"]["clone_url"]
 
-            # Change to repository directory
+            # Change to the repository directory
             try:
                 os.chdir(path_repo)
             except FileNotFoundError:
-                return {"message": "The directory of the repository does not exist!"}, 404
+                return {"message": "Repository directory does not exist!"}, 404
 
-            # Run Git Pull
+            # Force Fetch Latest Code
             try:
-                subprocess.run(["git", "pull", clone_url], check=True)
+                subprocess.run(["git", "fetch", "origin"], check=True)
+                subprocess.run(["git", "reset", "--hard", "origin/master"], check=True)  # Hard reset
+                subprocess.run(["git", "pull", "origin", "master"], check=True)  # Ensure latest changes
                 print("[SUCCESS] Git pull applied.")
             except subprocess.CalledProcessError:
-                return {"message": "Error trying to git pull the repository!"}, 500
+                return {"message": "Error pulling from GitHub!"}, 500
 
-            # Install Dependencies
+            # # Install Dependencies
             # install_requirements()
 
             # Run Database Migrations
@@ -279,16 +283,15 @@ def webhook():
                 # Run Prediction
                 test_prediction(user_tokens)
 
-            # Reload PythonAnywhere WebServer
+            # Reload PythonAnywhere Web Server
             subprocess.run(["touch", servidor_web], check=True)
             print("[SUCCESS] Web server reloaded.")
 
-            return {"message": f"Pull request processed for {repo_name}, API tested successfully."}, 200
+            return {"message": f"Pull request processed for {repo_name}, API updated successfully."}, 200
 
         return {"message": "No repository info in payload"}, 400
 
     return {"message": "Request does not have JSON data"}, 400
-
 
 
 # @app.route("/webhook", methods=["POST"])
