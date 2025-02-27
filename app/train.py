@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 MODEL_PATH = "diet_model.pkl"
 
-def train_model():
+def train_model():  
     # Load dataset
     data = pd.read_csv("data/diet_data.csv")  # Ensure dataset exists
 
