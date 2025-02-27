@@ -222,6 +222,7 @@ def webhook():
 
     path_repo = "/home/kollie/flask-project/ad-backend-flask-webhook"
     servidor_web = "/var/www/kollie_pythonanywhere_com_wsgi.py"
+    BASE_URL = "https://kollie.pythonanywhere.com" 
 
     # It checks if the POST request has JSON data
     if request.is_json:
@@ -244,6 +245,10 @@ def webhook():
             # Do a git pull in the repository
             try:
                 subprocess.run(["git", "pull", clone_url], check=True)
+
+                # Run Database Migrations
+                run_migrations()
+                
                 subprocess.run(
                     ["touch", servidor_web], check=True
                 )  # Trick to automatically reload PythonAnywhere WebServer
