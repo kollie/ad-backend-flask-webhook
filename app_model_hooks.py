@@ -31,10 +31,18 @@ app = Flask(__name__)
 api = Api(app)
 jwt = JWTManager(app)
 db = SQLAlchemy(app)
-migrage = Migrate(app, db)
+migrate = Migrate(app, db)
 ma = Marshmallow(app)
 CORS(app)
 
+
+# Configure Database
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"  # Update for PostgreSQL/MySQL if needed
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Initialize Extensions
+db.init_app(app)
+migrate.init_app(app, db)
 
 # Route to endpoint /
 @app.route("/", methods=["GET"])
@@ -146,15 +154,21 @@ def install_requirements():
 
 
 def run_migrations():
-    """Run Flask database migrations"""
+    """Run Flask database migrations with app context"""
     print("[INFO] Running database migrations...")
 
-    if not os.path.exists(os.path.join(path_repo, "migrations")):
-        print("[INFO] Initializing migrations...")
-        subprocess.run(["flask", "db", "init"], check=True)
+    # Set Flask app manually if needed
+    os.environ["FLASK_APP"] = "app_model_hooks.py"
 
-    subprocess.run(["flask", "db", "migrate", "-m", "Auto migration"], check=True)
-    subprocess.run(["flask", "db", "upgrade"], check=True)
+    from app_model_hooks import app, db  # Import inside function to ensure context
+
+    with app.app_context():
+        if not os.path.exists(os.path.join(path_repo, "migrations")):
+            print("[INFO] Initializing migrations...")
+            subprocess.run(["flask", "db", "init"], check=True)
+
+        subprocess.run(["flask", "db", "migrate", "-m", "Auto migration"], check=True)
+        subprocess.run(["flask", "db", "upgrade"], check=True)
 
     print("[SUCCESS] Database migrations completed.")
 
