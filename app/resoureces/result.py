@@ -1,7 +1,7 @@
 from flask import jsonify
 from flask_restful import Resource
-from app.models import Users, DietData
-from app.schemas import UserSchema, DietDataSchema
+from app.models.user import Users, DietData
+from app.schemas.user import UserSchema, DietDataSchema
 
 user_schema = UserSchema(many=True)
 diet_data_schema = DietDataSchema(many=True)
