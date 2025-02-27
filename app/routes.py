@@ -236,24 +236,24 @@ def webhook():
             except subprocess.CalledProcessError:
                 return {"message": "Error trying to git pull the repository!"}, 500
 
-            # Run Database Migrations
-            run_migrations()
+        #     # Run Database Migrations
+        #     run_migrations()
 
-            # Register Multiple Users
-            register_users()
+        #     # Register Multiple Users
+        #     register_users()
 
-            # Log In Users & Retrieve JWT Tokens
-            user_tokens = login_users()
+        #     # Log In Users & Retrieve JWT Tokens
+        #     user_tokens = login_users()
 
-            if user_tokens:
-                # Pass User Diet Data
-                pass_user_data(user_tokens)
+        #     if user_tokens:
+        #         # Pass User Diet Data
+        #         pass_user_data(user_tokens)
 
-                # Train the Model
-                train_model(user_tokens)
+        #         # Train the Model
+        #         train_model(user_tokens)
 
-                # Run Prediction
-                test_prediction(user_tokens)
+        #         # Run Prediction
+        #         test_prediction(user_tokens)
 
             # Reload PythonAnywhere WebServer
             subprocess.run(["touch", servidor_web], check=True)
