@@ -135,20 +135,25 @@ def run_migrations():
     """Run Flask database migrations with app context"""
     print("[INFO] Running database migrations...")
 
-    # Set Flask app manually if needed
-    os.environ["FLASK_APP"] = "main.py"
+    os.environ["FLASK_APP"] = "/home/kollie/flask-project/ad-backend-flask-webhook/main.py"
 
-    from app import app, db  # Import inside function to ensure context
+    try:
+        from app import app, db  # Import inside function to avoid circular imports
 
-    with app.app_context():
-        if not os.path.exists(os.path.join(path_repo, "migrations")):
-            print("[INFO] Initializing migrations...")
-            subprocess.run(["flask", "db", "init"], check=True)
+        with app.app_context():
+            if not os.path.exists(os.path.join(os.getcwd(), "migrations")):
+                print("[INFO] Initializing migrations...")
+                subprocess.run(["flask", "db", "init"], check=True)
+            else:
+                print("[INFO] Migrations already initialized. Skipping 'flask db init'.")
 
-        subprocess.run(["flask", "db", "migrate", "-m", "Auto migration"], check=True)
-        subprocess.run(["flask", "db", "upgrade"], check=True)
+            print("[INFO] Running migrations...")
+            subprocess.run(["flask", "db", "migrate", "-m", "Auto migration"], check=True)
+            subprocess.run(["flask", "db", "upgrade"], check=True)
 
-    print("[SUCCESS] Database migrations completed.")
+            print("[SUCCESS] Database migrations completed.")
+    except subprocess.CalledProcessError as e:
+        print(f"[ERROR] Migration failed: {e}")
 
 
 
@@ -214,7 +219,7 @@ def test_prediction(user_tokens):
             print(f"[ERROR] Diet prediction for {username} failed: {response.json()}")
 
 
-@app.route("/webhook", methods=["POST"])
+@app.route("/webhook", methods=["POST"]) 
 def webhook():
     print("[INFO] Webhook triggered.")
     path_repo = "/home/kollie/flask-project/ad-backend-flask-webhook"
@@ -241,21 +246,21 @@ def webhook():
                     print("[INFO] Running Migrations...")
                     run_migrations()
 
-                    print("[INFO] Registering Users...")
-                    register_users()
+                #     print("[INFO] Registering Users...")
+                #     register_users()
 
-                    print("[INFO] Logging in Users...")
-                    user_tokens = login_users()
+                #     print("[INFO] Logging in Users...")
+                #     user_tokens = login_users()
 
-                    if user_tokens:
-                        print("[INFO] Passing User Diet Data...")
-                        pass_user_data(user_tokens)
+                #     if user_tokens:
+                #         print("[INFO] Passing User Diet Data...")
+                #         pass_user_data(user_tokens)
 
-                        print("[INFO] Training Model...")
-                        train_model(user_tokens)
+                #         print("[INFO] Training Model...")
+                #         train_model(user_tokens)
 
-                        print("[INFO] Running Predictions...")
-                        test_prediction(user_tokens)
+                #         print("[INFO] Running Predictions...")
+                #         test_prediction(user_tokens)
 
                 subprocess.run(["touch", servidor_web], check=True)
                 print("[SUCCESS] Web server reloaded.")
