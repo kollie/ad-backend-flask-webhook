@@ -216,7 +216,6 @@ def test_prediction(user_tokens):
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    """GitHub Webhook to pull latest code and reload the server"""
     if request.is_json:
         payload = request.json
 
@@ -224,23 +223,18 @@ def webhook():
             repo_name = payload["repository"]["name"]
             clone_url = payload["repository"]["clone_url"]
 
-            # Change to the repository directory
+            # Change to repository directory
             try:
                 os.chdir(path_repo)
             except FileNotFoundError:
-                return {"message": "Repository directory does not exist!"}, 404
+                return {"message": "The directory of the repository does not exist!"}, 404
 
-            # Force Fetch Latest Code
+            # Run Git Pull
             try:
-                subprocess.run(["git", "fetch", "origin"], check=True)
-                subprocess.run(["git", "reset", "--hard", "origin/master"], check=True)  # Hard reset
-                subprocess.run(["git", "pull", "origin", "master"], check=True)  # Ensure latest changes
+                subprocess.run(["git", "pull", clone_url], check=True)
                 print("[SUCCESS] Git pull applied.")
             except subprocess.CalledProcessError:
-                return {"message": "Error pulling from GitHub!"}, 500
-
-            # # Install Dependencies
-            # install_requirements()
+                return {"message": "Error trying to git pull the repository!"}, 500
 
             # Run Database Migrations
             run_migrations()
@@ -261,11 +255,11 @@ def webhook():
                 # Run Prediction
                 test_prediction(user_tokens)
 
-            # Reload PythonAnywhere Web Server
+            # Reload PythonAnywhere WebServer
             subprocess.run(["touch", servidor_web], check=True)
             print("[SUCCESS] Web server reloaded.")
 
-            return {"message": f"Pull request processed for {repo_name}, API updated successfully."}, 200
+            return {"message": f"Pull request processed for {repo_name}, API tested successfully."}, 200
 
         return {"message": "No repository info in payload"}, 400
 
