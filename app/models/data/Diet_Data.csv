@@ -1,0 +1,26 @@
+age,gender,height,weight,activity_level,goal,dietary_preference,recommended_diet
+48,Male,181.41937397667536,61.05053275480384,High,Muscle Gain,Keto,High-Protein Diet
+43,Female,181.31081747029435,61.46930392891376,Moderate,Weight Loss,Balanced,Low-Carb Diet
+31,Male,176.15002956550194,96.34771402887586,Sedentary,Muscle Gain,Balanced,Balanced Diet
+55,Female,192.93050252880982,95.38344216008052,High,Muscle Gain,Paleo,Low-Carb Diet
+23,Male,166.05523743080886,87.45512086133868,Moderate,Muscle Gain,Paleo,Low-Carb Diet
+43,Male,151.05802083968248,53.71417608321185,Light,Maintenance,Paleo,High-Protein Diet
+52,Female,167.4719211333309,54.65207934087478,High,Muscle Gain,Vegetarian,Balanced Diet
+38,Female,190.12139227752377,78.6122856339043,High,Maintenance,Paleo,High-Protein Diet
+30,Female,165.11793719797595,93.005950301156,Moderate,Weight Loss,Keto,High-Protein Diet
+49,Male,186.24280559065983,87.31568567314375,Sedentary,Muscle Gain,Vegan,High-Protein Diet
+48,Male,195.60583847818415,56.172342673540484,Sedentary,Weight Loss,Vegan,Balanced Diet
+50,Male,172.07573227878322,52.12662017282093,High,Maintenance,Vegan,Balanced Diet
+52,Male,183.14081088219683,89.71737816832464,Light,Maintenance,Vegetarian,High-Protein Diet
+24,Female,198.79287305130964,66.17555110574628,Light,Maintenance,Keto,Balanced Diet
+39,Female,153.90517394147284,94.44317370318495,Sedentary,Maintenance,Balanced,Keto-Friendly Diet
+36,Female,177.53902741961548,85.55966202860333,High,Weight Loss,Keto,Plant-Based Diet
+38,Male,182.2020658419269,90.60663026129787,Sedentary,Maintenance,Vegan,Balanced Diet
+38,Male,154.5624704728673,84.56840165378006,Sedentary,Maintenance,Balanced,Keto-Friendly Diet
+60,Female,161.57879165861246,55.24694357158257,Light,Maintenance,Vegan,Plant-Based Diet
+56,Female,195.39504828759468,81.8593846689314,Light,Muscle Gain,Vegan,High-Protein Diet
+53,Male,180.46697378400083,55.84800514371847,Moderate,Weight Loss,Paleo,Keto-Friendly Diet
+26,Male,168.27747275981832,95.50856491302537,Moderate,Muscle Gain,Vegetarian,Low-Carb Diet
+33,Male,155.2648289092574,52.65417468997166,Light,Weight Loss,Vegetarian,Low-Carb Diet
+57,Female,157.96768387384392,87.79673938228257,High,Muscle Gain,Balanced,Plant-Based Diet
+38,Male,179.72104768716238,50.51782245754944,Sedentary,Weight Loss,Keto,Low-Carb Diet
