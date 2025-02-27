@@ -139,7 +139,7 @@ def install_requirements():
     """Install dependencies from requirements.txt"""
     print("[INFO] Installing required packages...")
     try:
-        subprocess.run(["pip3", "install", "-r", "requirements.txt"], check=True)
+        subprocess.run(["pip", "install", "-r", "requirements.txt"], check=True)
         print("[SUCCESS] All packages installed successfully.")
     except subprocess.CalledProcessError:
         print("[ERROR] Failed to install dependencies!")
