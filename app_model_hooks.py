@@ -287,7 +287,7 @@ def webhook():
 
         return {"message": "No repository info in payload"}, 400
 
-    return {"message": "Request does not have JSON data"}, 400
+    return {"message": "Request does not have JSON data"}, 400 
 
 
 # @app.route("/webhook", methods=["POST"])
