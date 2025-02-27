@@ -244,7 +244,7 @@ def webhook():
                 return {"message": "Error trying to git pull the repository!"}, 500
 
             # Install Dependencies
-            install_requirements()
+            # install_requirements()
 
             # Run Database Migrations
             run_migrations()
