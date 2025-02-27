@@ -216,51 +216,47 @@ def test_prediction(user_tokens):
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
+    # route to the repository where the git pull will be applied
+    # path_repo = "/route/to/your/repository/on/PythonAnywhere"
+    # servidor_web = "/route/to/the/WSGI/file/for/configuration"
+
+    path_repo = "/home/kollie/flask-project/ad-backend-flask-webhook"
+    servidor_web = "/var/www/kollie_pythonanywhere_com_wsgi.py"
+
+    # It checks if the POST request has JSON data
     if request.is_json:
         payload = request.json
+        # It verifies that the payload holds information about the repository
 
         if "repository" in payload:
+            # It extracts the repository name and the URL to clone it
             repo_name = payload["repository"]["name"]
             clone_url = payload["repository"]["clone_url"]
 
-            # Change to repository directory
+            # It changes to the repository directory
             try:
                 os.chdir(path_repo)
             except FileNotFoundError:
-                return {"message": "The directory of the repository does not exist!"}, 404
+                return {
+                    "message": "The directory of the repository does not exist!"
+                }, 404
 
-            # Run Git Pull
+            # Do a git pull in the repository
             try:
                 subprocess.run(["git", "pull", clone_url], check=True)
-                print("[SUCCESS] Git pull applied.")
+                subprocess.run(
+                    ["touch", servidor_web], check=True
+                )  # Trick to automatically reload PythonAnywhere WebServer
+                return {
+                    "message": f"A git pull was applied in the repository {repo_name}"
+                }, 200
             except subprocess.CalledProcessError:
-                return {"message": "Error trying to git pull the repository!"}, 500
-
-        #     # Run Database Migrations
-        #     run_migrations()
-
-        #     # Register Multiple Users
-        #     register_users()
-
-        #     # Log In Users & Retrieve JWT Tokens
-        #     user_tokens = login_users()
-
-        #     if user_tokens:
-        #         # Pass User Diet Data
-        #         pass_user_data(user_tokens)
-
-        #         # Train the Model
-        #         train_model(user_tokens)
-
-        #         # Run Prediction
-        #         test_prediction(user_tokens)
-
-            # Reload PythonAnywhere WebServer
-            subprocess.run(["touch", servidor_web], check=True)
-            print("[SUCCESS] Web server reloaded.")
-
-            return {"message": f"Pull request processed for {repo_name}, API tested successfully."}, 200
-
-        return {"message": "No repository info in payload"}, 400
-
-    return {"message": "Request does not have JSON data"}, 400
+                return {
+                    "message": f"Error trying to git pull the repository {repo_name}"
+                }, 500
+        else:
+            return {
+                "message": "No information found about the repository in the payload"
+            }, 400
+    else:
+        return {"message": "The request does not have JSON data"}, 400
