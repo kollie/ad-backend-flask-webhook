@@ -1,4 +1,4 @@
-from app_model_hooks import ma
+from app import ma
 from app.models.user import Users
 from app.models.user import DietData
 

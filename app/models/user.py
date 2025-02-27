@@ -2,7 +2,7 @@ from typing import List
 from datetime import datetime, date, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from extensions import db
+from app import db
 
 
 class Users(db.Model):
