@@ -1,6 +1,5 @@
 from app import ma
-from app.models.user import Users
-from app.models.user import DietData
+from app.models import Users, DietData
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

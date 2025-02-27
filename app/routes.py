@@ -3,19 +3,22 @@ import pickle
 import subprocess
 import time
 import requests
-from flask import Flask, request
 
 import numpy as np
 import pandas as pd
-from flask import Flask, request
+from flask import request
 from sklearn.linear_model import Lasso
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error
 from sklearn.model_selection import train_test_split
 
-from app import app, jwt, api, db
-from app.resoureces.user import UserRegister, UserLogin, DietDataResource
-from app.resoureces.food import TrainModelResource, PredictFoodResource
-from app.resoureces.result import AllUsersWithDietData
+from flask import jsonify
+from marshmallow import ValidationError
+
+from app import app, jwt, api
+
+from app.resources.user import UserRegister, UserLogin, DietDataResource
+from app.resources.food import TrainModelResource, PredictFoodResource
+from app.resources.result import AllUsersWithDietData
 
 os.chdir(os.path.dirname(__file__))
     
@@ -135,7 +138,7 @@ def run_migrations():
     # Set Flask app manually if needed
     os.environ["FLASK_APP"] = "app_model_hooks.py"
 
-    from app_model_hooks import app, db  # Import inside function to ensure context
+    from app import app, db  # Import inside function to ensure context
 
     with app.app_context():
         if not os.path.exists(os.path.join(path_repo, "migrations")):

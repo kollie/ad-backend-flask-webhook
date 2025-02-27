@@ -3,7 +3,7 @@ from flask import request
 from flask_jwt_extended import jwt_required
 import pandas as pd
 import joblib
-from app.models.train import train_model, load_model
+from app.train import train_model, load_model
 from sklearn.metrics import accuracy_score
 
 class TrainModelResource(Resource):

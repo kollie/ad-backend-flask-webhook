@@ -1,8 +1,11 @@
 from typing import List
 from datetime import datetime, date, timedelta
+from sqlalchemy.dialects.mysql import LONGTEXT
+from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app import db
+
+from app import app, db
 
 
 class Users(db.Model):
@@ -68,4 +71,6 @@ class DietData(db.Model):
     def delete_from_db(self) -> None:
         db.session.delete(self)
         db.session.commit()
+
+
 

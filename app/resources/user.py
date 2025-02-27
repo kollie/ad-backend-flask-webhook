@@ -1,8 +1,15 @@
-from flask_restful import Resource
-from flask import request
 from datetime import datetime, timedelta
-from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required
-from app.models.user import Users, DietData
+import json
+from flask import request
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    get_jwt,
+    get_jwt_identity,
+    jwt_required
+)
+from flask_restful import Resource
+from app.models import Users, DietData
 from app.schemas.user import UserSchema, DietDataSchema
 
 user_schema = UserSchema()
