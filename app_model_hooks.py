@@ -13,11 +13,9 @@ from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error
 from sklearn.model_selection import train_test_split
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from extensions import db, migrate, ma
 from app.resoureces.user import UserRegister, UserLogin, DietDataResource
 from app.resoureces.food import TrainModelResource, PredictFoodResource
 from app.resoureces.result import AllUsersWithDietData
@@ -30,9 +28,6 @@ app.config["DEBUG"] = True
 app = Flask(__name__)
 api = Api(app)
 jwt = JWTManager(app)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-ma = Marshmallow(app)
 CORS(app)
 
 
@@ -40,9 +35,10 @@ CORS(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"  # Update for PostgreSQL/MySQL if needed
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Initialize Extensions
+# Attach extensions to the app
 db.init_app(app)
 migrate.init_app(app, db)
+ma.init_app(app)
 
 # Route to endpoint /
 @app.route("/", methods=["GET"])
@@ -343,4 +339,6 @@ def webhook():
 
 
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()  # Ensure database tables exist
     app.run()
