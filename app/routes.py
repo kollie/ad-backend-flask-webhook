@@ -216,58 +216,52 @@ def test_prediction(user_tokens):
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    # route to the repository where the git pull will be applied
-    # path_repo = "/route/to/your/repository/on/PythonAnywhere"
-    # servidor_web = "/route/to/the/WSGI/file/for/configuration"
-
+    print("[INFO] Webhook triggered.")
     path_repo = "/home/kollie/flask-project/ad-backend-flask-webhook"
     servidor_web = "/var/www/kollie_pythonanywhere_com_wsgi.py"
-    BASE_URL = "https://kollie.pythonanywhere.com" 
 
-    # It checks if the POST request has JSON data
     if request.is_json:
         payload = request.json
-        # It verifies that the payload holds information about the repository
-
         if "repository" in payload:
-            # It extracts the repository name and the URL to clone it
             repo_name = payload["repository"]["name"]
-            clone_url = payload["repository"]["clone_url"]
 
-            # It changes to the repository directory
             try:
                 os.chdir(path_repo)
             except FileNotFoundError:
-                return {
-                    "message": "The directory of the repository does not exist!"
-                }, 404
+                print("[ERROR] Repository path not found!")
+                return {"message": "The directory of the repository does not exist!"}, 404
 
-            # Do a git pull in the repository
             try:
-                subprocess.run(["git", "pull", clone_url], check=True)
+                print("[INFO] Running Git Pull...")
+                subprocess.run(["git", "pull", "origin", "main"], check=True)
+                print("[SUCCESS] Git Pull Completed.")
 
-                # Run Database Migrations
-                print("[INFO] Initializing migrations...")
-                subprocess.run(["flask", "db", "init"], check=True)
+                from app import app
+                with app.app_context():
+                    print("[INFO] Running Migrations...")
+                    run_migrations()
 
-                subprocess.run(["flask", "db", "migrate", "-m", "Auto migration"], check=True)
-                subprocess.run(["flask", "db", "upgrade"], check=True)
+                    print("[INFO] Registering Users...")
+                    register_users()
 
-                print("[SUCCESS] Database migrations completed.")
+                    print("[INFO] Logging in Users...")
+                    user_tokens = login_users()
 
-                subprocess.run(
-                    ["touch", servidor_web], check=True
-                )  # Trick to automatically reload PythonAnywhere WebServer
-                return {
-                    "message": f"A git pull was applied in the repository {repo_name}"
-                }, 200
-            except subprocess.CalledProcessError:
-                return {
-                    "message": f"Error trying to git pull the repository {repo_name}"
-                }, 500
-        else:
-            return {
-                "message": "No information found about the repository in the payload"
-            }, 400
-    else:
-        return {"message": "The request does not have JSON data"}, 400
+                    if user_tokens:
+                        print("[INFO] Passing User Diet Data...")
+                        pass_user_data(user_tokens)
+
+                        print("[INFO] Training Model...")
+                        train_model(user_tokens)
+
+                        print("[INFO] Running Predictions...")
+                        test_prediction(user_tokens)
+
+                subprocess.run(["touch", servidor_web], check=True)
+                print("[SUCCESS] Web server reloaded.")
+                return {"message": f"Webhook processed for {repo_name}."}, 200
+
+            except subprocess.CalledProcessError as e:
+                print(f"[ERROR] Git pull failed: {str(e)}")
+                return {"message": f"Git pull error: {repo_name}"}, 500
+    return {"message": "Invalid webhook payload"}, 400
