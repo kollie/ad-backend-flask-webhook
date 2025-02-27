@@ -232,113 +232,111 @@ def test_prediction(user_tokens):
             print(f"[ERROR] Diet prediction for {username} failed: {response.json()}")
 
 
-@app.route("/webhook", methods=["POST"])
-def webhook():
-    """GitHub Webhook to pull latest code and reload the server"""
-    if request.is_json:
-        payload = request.json
-
-        if "repository" in payload:
-            repo_name = payload["repository"]["name"]
-            clone_url = payload["repository"]["clone_url"]
-
-            # Change to the repository directory
-            try:
-                os.chdir(path_repo)
-            except FileNotFoundError:
-                return {"message": "Repository directory does not exist!"}, 404
-
-            # Force Fetch Latest Code
-            try:
-                subprocess.run(["git", "fetch", "origin"], check=True)
-                subprocess.run(["git", "reset", "--hard", "origin/master"], check=True)  # Hard reset
-                subprocess.run(["git", "pull", "origin", "master"], check=True)  # Ensure latest changes
-                print("[SUCCESS] Git pull applied.")
-            except subprocess.CalledProcessError:
-                return {"message": "Error pulling from GitHub!"}, 500
-
-            # # Install Dependencies
-            # install_requirements()
-
-            # Run Database Migrations
-            run_migrations()
-
-            # Register Multiple Users
-            register_users()
-
-            # Log In Users & Retrieve JWT Tokens
-            user_tokens = login_users()
-
-            if user_tokens:
-                # Pass User Diet Data
-                pass_user_data(user_tokens)
-
-                # Train the Model
-                train_model(user_tokens)
-
-                # Run Prediction
-                test_prediction(user_tokens)
-
-            # Reload PythonAnywhere Web Server
-            subprocess.run(["touch", servidor_web], check=True)
-            print("[SUCCESS] Web server reloaded.")
-
-            return {"message": f"Pull request processed for {repo_name}, API updated successfully."}, 200
-
-        return {"message": "No repository info in payload"}, 400
-
-    return {"message": "Request does not have JSON data"}, 400
-
-
 # @app.route("/webhook", methods=["POST"])
 # def webhook():
-#     # route to the repository where the git pull will be applied
-#     # path_repo = "/route/to/your/repository/on/PythonAnywhere"
-#     # servidor_web = "/route/to/the/WSGI/file/for/configuration"
-
-#     path_repo = "/home/kollie/flask-project/ad-backend-flask-webhook"
-#     servidor_web = "/var/www/kollie_pythonanywhere_com_wsgi.py"
-
-#     # It checks if the POST request has JSON data
+#     """GitHub Webhook to pull latest code and reload the server"""
 #     if request.is_json:
 #         payload = request.json
-#         # It verifies that the payload holds information about the repository
 
 #         if "repository" in payload:
-#             # It extracts the repository name and the URL to clone it
 #             repo_name = payload["repository"]["name"]
 #             clone_url = payload["repository"]["clone_url"]
 
-#             # It changes to the repository directory
+#             # Change to the repository directory
 #             try:
 #                 os.chdir(path_repo)
 #             except FileNotFoundError:
-#                 return {
-#                     "message": "The directory of the repository does not exist!"
-#                 }, 404
+#                 return {"message": "Repository directory does not exist!"}, 404
 
-#             # Do a git pull in the repository
+#             # Force Fetch Latest Code
 #             try:
-#                 subprocess.run(["git", "pull", clone_url], check=True)
-#                 subprocess.run(
-#                     ["touch", servidor_web], check=True
-#                 )  # Trick to automatically reload PythonAnywhere WebServer
-#                 return {
-#                     "message": f"A git pull was applied in the repository {repo_name}"
-#                 }, 200
+#                 subprocess.run(["git", "fetch", "origin"], check=True)
+#                 subprocess.run(["git", "reset", "--hard", "origin/master"], check=True)  # Hard reset
+#                 subprocess.run(["git", "pull", "origin", "master"], check=True)  # Ensure latest changes
+#                 print("[SUCCESS] Git pull applied.")
 #             except subprocess.CalledProcessError:
-#                 return {
-#                     "message": f"Error trying to git pull the repository {repo_name}"
-#                 }, 500
-#         else:
-#             return {
-#                 "message": "No information found about the repository in the payload"
-#             }, 400
-#     else:
-#         return {"message": "The request does not have JSON data"}, 400
+#                 return {"message": "Error pulling from GitHub!"}, 500
+
+#             # # Install Dependencies
+#             # install_requirements()
+
+#             # Run Database Migrations
+#             run_migrations()
+
+#             # Register Multiple Users
+#             register_users()
+
+#             # Log In Users & Retrieve JWT Tokens
+#             user_tokens = login_users()
+
+#             if user_tokens:
+#                 # Pass User Diet Data
+#                 pass_user_data(user_tokens)
+
+#                 # Train the Model
+#                 train_model(user_tokens)
+
+#                 # Run Prediction
+#                 test_prediction(user_tokens)
+
+#             # Reload PythonAnywhere Web Server
+#             subprocess.run(["touch", servidor_web], check=True)
+#             print("[SUCCESS] Web server reloaded.")
+
+#             return {"message": f"Pull request processed for {repo_name}, API updated successfully."}, 200
+
+#         return {"message": "No repository info in payload"}, 400
+
+#     return {"message": "Request does not have JSON data"}, 400
+
+
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    # route to the repository where the git pull will be applied
+    # path_repo = "/route/to/your/repository/on/PythonAnywhere"
+    # servidor_web = "/route/to/the/WSGI/file/for/configuration"
+
+    path_repo = "/home/kollie/flask-project/ad-backend-flask-webhook"
+    servidor_web = "/var/www/kollie_pythonanywhere_com_wsgi.py"
+
+    # It checks if the POST request has JSON data
+    if request.is_json:
+        payload = request.json
+        # It verifies that the payload holds information about the repository
+
+        if "repository" in payload:
+            # It extracts the repository name and the URL to clone it
+            repo_name = payload["repository"]["name"]
+            clone_url = payload["repository"]["clone_url"]
+
+            # It changes to the repository directory
+            try:
+                os.chdir(path_repo)
+            except FileNotFoundError:
+                return {
+                    "message": "The directory of the repository does not exist!"
+                }, 404
+
+            # Do a git pull in the repository
+            try:
+                subprocess.run(["git", "pull", clone_url], check=True)
+                subprocess.run(
+                    ["touch", servidor_web], check=True
+                )  # Trick to automatically reload PythonAnywhere WebServer
+                return {
+                    "message": f"A git pull was applied in the repository {repo_name}"
+                }, 200
+            except subprocess.CalledProcessError:
+                return {
+                    "message": f"Error trying to git pull the repository {repo_name}"
+                }, 500
+        else:
+            return {
+                "message": "No information found about the repository in the payload"
+            }, 400
+    else:
+        return {"message": "The request does not have JSON data"}, 400
 
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()  # Ensure database tables exist
     app.run()
