@@ -136,7 +136,7 @@ def run_migrations():
     print("[INFO] Running database migrations...")
 
     # Set Flask app manually if needed
-    os.environ["FLASK_APP"] = "app_model_hooks.py"
+    os.environ["FLASK_APP"] = "main.py"
 
     from app import app, db  # Import inside function to ensure context
 
