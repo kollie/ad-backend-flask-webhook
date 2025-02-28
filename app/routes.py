@@ -219,7 +219,7 @@ def run_migrations():
 #             print(f"[ERROR] Diet prediction for {username} failed: {response.json()}")
 
 
-@app.route("/webhook", methods=["POST"]) 
+@app.route("/webhook", methods=["POST"])
 def webhook():
     print("[INFO] Webhook triggered.")
     path_repo = "/home/kollie/flask-project/ad-backend-flask-webhook"
