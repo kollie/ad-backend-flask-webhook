@@ -40,18 +40,16 @@ class UserLogin(Resource):
     def post(cls):
         user_data = request.get_json()
         
-        # Deserialize input
         user = Users.find_by_username(user_data.get("username"))
 
         if not user or not user.check_password(user_data.get("password")):
             return {"message": "Invalid credentials"}, 401
 
-        # Set token expiration time
         expires = datetime.now() + timedelta(hours=24)
 
-        # Generate JWT tokens
-        access_token = create_access_token(identity=user.id, fresh=True)
-        refresh_token = create_refresh_token(user.id)
+        # ✅ Convert user.id to a string
+        access_token = create_access_token(identity=str(user.id), fresh=True)
+        refresh_token = create_refresh_token(str(user.id))
 
         return {
             "access_token": access_token,

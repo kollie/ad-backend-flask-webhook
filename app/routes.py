@@ -440,7 +440,7 @@ def register_users_endpoint():
         return jsonify({"message": f"User registration failed: {str(e)}"}), 500
 
 
-@app.route("/login-users", methods=["POST"])
+@app.route("/login-users", methods=["GET"])
 def login_users_endpoint():
     """Manually log in users and retrieve JWT tokens inside Flask app context."""
     print("[INFO] Logging in Users...")
@@ -453,7 +453,7 @@ def login_users_endpoint():
         return jsonify({"message": f"User login failed: {str(e)}"}), 500
 
 
-@app.route("/pass-diet-data", methods=["POST"])
+@app.route("/pass-diet-data", methods=["GET"])
 def pass_diet_data_endpoint():
     """Manually send diet data for users inside Flask app context."""
     print("[INFO] Passing User Diet Data...")
