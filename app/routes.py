@@ -139,7 +139,7 @@ def run_migrations():
 
     try:
         from main import application as app  # Import inside function to avoid circular imports
-        from main import db
+        from app import db
 
         with app.app_context():  
             if not os.path.exists(os.path.join(os.getcwd(), "migrations")):
