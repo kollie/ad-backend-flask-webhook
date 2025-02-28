@@ -192,7 +192,7 @@ def run_migrations():
 def register_users():
     print("[INFO] Registering test users...")
     for user in test_users:
-        response = requests.post("http://localhost/register", json=user, headers=HEADERS)
+        response = requests.post("http://127.0.0.1/register", json=user, headers=HEADERS)
         if response.status_code == 201:
             print(f"[SUCCESS] User {user['username']} registered.")
         else:
@@ -205,7 +205,7 @@ def login_users():
     user_tokens = {}
     for user in test_users:
         login_data = {"username": user["username"], "password": user["password"]}
-        response = requests.post("http://localhost/login", json=login_data, headers=HEADERS)
+        response = requests.post("http://127.0.0.1/login", json=login_data, headers=HEADERS)
         if response.status_code == 200:
             token = response.json()["access_token"]
             user_tokens[user["username"]] = token
@@ -220,7 +220,7 @@ def pass_user_data(user_tokens):
     print("[INFO] Passing diet data for users...")
     for username, token in user_tokens.items():
         auth_headers = {**HEADERS, "Authorization": f"Bearer {token}"}
-        response = requests.post("http://localhost/diet", json=test_diet_data, headers=auth_headers)
+        response = requests.post("http://127.0.0.1/diet", json=test_diet_data, headers=auth_headers)
         if response.status_code == 201:
             print(f"[SUCCESS] Diet data saved for {username}.")
         else:
@@ -233,7 +233,7 @@ def train_model(user_tokens):
     # Use the first user's token to train the model
     token = list(user_tokens.values())[0]
     auth_headers = {**HEADERS, "Authorization": f"Bearer {token}"}
-    response = requests.post("http://localhost/train_model", headers=auth_headers)
+    response = requests.post("http://127.0.0.1/train_model", headers=auth_headers)
 
     if response.status_code == 200:
         print("[SUCCESS] Model trained successfully.")
@@ -245,7 +245,7 @@ def test_prediction(user_tokens):
     print("[INFO] Running diet prediction...")
     for username, token in user_tokens.items():
         auth_headers = {**HEADERS, "Authorization": f"Bearer {token}"}
-        response = requests.post("http://localhost/predict_food", json=test_diet_data, headers=auth_headers)
+        response = requests.post("http://127.0.0.1/predict_food", json=test_diet_data, headers=auth_headers)
 
         if response.status_code == 200:
             prediction = response.json()
@@ -440,7 +440,7 @@ def register_users_endpoint():
         return jsonify({"message": f"User registration failed: {str(e)}"}), 500
 
 
-@app.route("/login-users", methods=["GET"])
+@app.route("/login-users", methods=["POST"])
 def login_users_endpoint():
     """Manually log in users and retrieve JWT tokens inside Flask app context."""
     print("[INFO] Logging in Users...")
@@ -453,7 +453,7 @@ def login_users_endpoint():
         return jsonify({"message": f"User login failed: {str(e)}"}), 500
 
 
-@app.route("/pass-diet-data", methods=["GET"])
+@app.route("/pass-diet-data", methods=["POST"])
 def pass_diet_data_endpoint():
     """Manually send diet data for users inside Flask app context."""
     print("[INFO] Passing User Diet Data...")
