@@ -278,21 +278,21 @@ def test_prediction(user_tokens):
 #                     print("[INFO] Running Migrations...")
 #                     run_migrations()
 
-#                 #     print("[INFO] Registering Users...")
-#                 #     register_users()
+#                     print("[INFO] Registering Users...")
+#                     register_users()
 
-#                 #     print("[INFO] Logging in Users...")
-#                 #     user_tokens = login_users()
+#                     print("[INFO] Logging in Users...")
+#                     user_tokens = login_users()
 
-#                 #     if user_tokens:
-#                 #         print("[INFO] Passing User Diet Data...")
-#                 #         pass_user_data(user_tokens)
+#                     if user_tokens:
+#                         print("[INFO] Passing User Diet Data...")
+#                         pass_user_data(user_tokens)
 
-#                 #         print("[INFO] Training Model...")
-#                 #         train_model(user_tokens)
+#                         print("[INFO] Training Model...")
+#                         train_model(user_tokens)
 
-#                 #         print("[INFO] Running Predictions...")
-#                 #         test_prediction(user_tokens)
+#                         print("[INFO] Running Predictions...")
+#                         test_prediction(user_tokens)
 
 #                 subprocess.run(["touch", servidor_web], check=True)
 #                 print("[SUCCESS] Web server reloaded.")
@@ -336,6 +336,22 @@ def webhook():
                     with app.app_context():
                         print("[INFO] Running Migrations...")
                         run_migrations()
+
+                        print("[INFO] Registering Users...")
+                        register_users()
+
+                        print("[INFO] Logging in Users...")
+                        user_tokens = login_users()
+
+                        if user_tokens:
+                                print("[INFO] Passing User Diet Data...")
+                                pass_user_data(user_tokens)
+
+                                print("[INFO] Training Model...")
+                                train_model(user_tokens)
+
+                                print("[INFO] Running Predictions...")
+                                test_prediction(user_tokens)
 
                     subprocess.run(["touch", servidor_web], check=True)
                     print("[SUCCESS] Web server reloaded.")
