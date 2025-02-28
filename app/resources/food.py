@@ -1,3 +1,4 @@
+import os
 from flask_restful import Resource
 from flask import request
 from flask_jwt_extended import jwt_required
@@ -29,7 +30,14 @@ class PredictFoodResource(Resource):
         df_input = pd.get_dummies(df_input)
 
         # Ensure input has same columns as training data
-        model_features = joblib.load("model_features.pkl")  # Save feature columns separately
+        base_dir = os.path.abspath(os.path.dirname(__file__))  # Gets `/home/kollie/flask-project/ad-backend-flask-webhook/app/`
+
+        # ✅ Construct the correct file path
+        model_path = os.path.join(base_dir, "data/diet_model.pkl")
+
+        print(f"[INFO] Loading model from: {model_path}")
+
+        model_features = joblib.load(model_path)  # Save feature columns separately
         df_input = df_input.reindex(columns=model_features, fill_value=0)
 
         prediction = model.predict(df_input)[0]

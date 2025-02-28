@@ -45,7 +45,14 @@ def train_model():
 
 
 def load_model():
+    # Ensure input has same columns as training data
+    base_dir = os.path.abspath(os.path.dirname(__file__))  # Gets `/home/kollie/flask-project/ad-backend-flask-webhook/app/`
+
+        # ✅ Construct the correct file path
+    model_path_ = os.path.join(base_dir, "data/diet_model.pkl")
+
+    print(f"[INFO] Loading model from: {model_path_}")
     try:
-        return joblib.load(MODEL_PATH)
+        return joblib.load(model_path_)
     except FileNotFoundError:
         return None
