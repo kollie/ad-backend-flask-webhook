@@ -27,7 +27,7 @@ class PredictFoodResource(Resource):
 
         # ✅ Load model
         try:
-            model = joblib.load(model_path)
+            model = joblib.load(model_path) 
             feature_columns = joblib.load(features_path)  # ✅ Load saved feature names
         except FileNotFoundError:
             return {"message": "Model not trained yet"}, 400
