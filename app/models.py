@@ -56,7 +56,6 @@ class DietData(db.Model):
     activity_level = db.Column(db.String(20), nullable=False)
     goal = db.Column(db.String(20), nullable=False)
     dietary_preference = db.Column(db.String(20), nullable=False)
-    predicted_diet = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, default=datetime.now())
 
