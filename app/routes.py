@@ -141,7 +141,7 @@ def run_migrations():
         from main import application as app  # Import inside function to avoid circular imports
         from app import db
 
-        with app.app_context():  
+        with app.app_context():
             if not os.path.exists(os.path.join(os.getcwd(), "migrations")):
                 print("[INFO] Initializing migrations...")
                 subprocess.run(["flask", "db", "init"], check=True)
