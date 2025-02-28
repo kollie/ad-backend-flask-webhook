@@ -192,11 +192,12 @@ def run_migrations():
 def register_users():
     print("[INFO] Registering test users...")
     for user in test_users:
-        response = requests.post(f"{BASE_URL}/register", json=user, headers=HEADERS)
+        response = requests.post("http://127.0.0.1:5000/register", json=user, headers=HEADERS)
         if response.status_code == 201:
             print(f"[SUCCESS] User {user['username']} registered.")
         else:
             print(f"[ERROR] User {user['username']} registration failed: {response.json()}")
+
 
 
 def login_users():
@@ -204,7 +205,7 @@ def login_users():
     user_tokens = {}
     for user in test_users:
         login_data = {"username": user["username"], "password": user["password"]}
-        response = requests.post(f"{BASE_URL}/login", json=login_data, headers=HEADERS)
+        response = requests.post("http://127.0.0.1:5000/login", json=login_data, headers=HEADERS)
         if response.status_code == 200:
             token = response.json()["access_token"]
             user_tokens[user["username"]] = token
@@ -214,15 +215,17 @@ def login_users():
     return user_tokens
 
 
+
 def pass_user_data(user_tokens):
     print("[INFO] Passing diet data for users...")
     for username, token in user_tokens.items():
         auth_headers = {**HEADERS, "Authorization": f"Bearer {token}"}
-        response = requests.post(f"{BASE_URL}/diet", json=test_diet_data, headers=auth_headers)
+        response = requests.post("http://127.0.0.1:5000/diet", json=test_diet_data, headers=auth_headers)
         if response.status_code == 201:
             print(f"[SUCCESS] Diet data saved for {username}.")
         else:
             print(f"[ERROR] Saving diet data for {username} failed: {response.json()}")
+
 
 
 def train_model(user_tokens):
@@ -230,7 +233,7 @@ def train_model(user_tokens):
     # Use the first user's token to train the model
     token = list(user_tokens.values())[0]
     auth_headers = {**HEADERS, "Authorization": f"Bearer {token}"}
-    response = requests.post(f"{BASE_URL}/train_model", headers=auth_headers)
+    response = requests.post("http://127.0.0.1:5000/train_model", headers=auth_headers)
 
     if response.status_code == 200:
         print("[SUCCESS] Model trained successfully.")
@@ -242,7 +245,7 @@ def test_prediction(user_tokens):
     print("[INFO] Running diet prediction...")
     for username, token in user_tokens.items():
         auth_headers = {**HEADERS, "Authorization": f"Bearer {token}"}
-        response = requests.post(f"{BASE_URL}/predict_food", json=test_diet_data, headers=auth_headers)
+        response = requests.post("http://127.0.0.1:5000/predict_food", json=test_diet_data, headers=auth_headers)
 
         if response.status_code == 200:
             prediction = response.json()
