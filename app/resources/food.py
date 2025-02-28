@@ -30,7 +30,7 @@ class PredictFoodResource(Resource):
         df_input = pd.get_dummies(df_input)
 
         # Ensure input has same columns as training data
-        base_dir = os.path.abspath(os.path.dirname(__file__))  # Gets `/home/kollie/flask-project/ad-backend-flask-webhook/app/`
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # Gets `/home/kollie/flask-project/ad-backend-flask-webhook/app/`
 
         # ✅ Construct the correct file path
         model_path = os.path.join(base_dir, "diet_model.pkl")
