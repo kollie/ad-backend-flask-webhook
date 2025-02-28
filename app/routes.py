@@ -131,9 +131,34 @@ test_diet_data = {
 #         print("[ERROR] Failed to install dependencies!")
 
 
+# def run_migrations():
+#     """Run Flask database migrations with app context"""
+#     print("[INFO] Running database migrations...")     
+
+#     os.environ["FLASK_APP"] = "/home/kollie/flask-project/ad-backend-flask-webhook/main.py"
+
+#     try:
+#         from main import application  # Import inside function to avoid circular imports
+#         from app import db
+
+#         with application.app_context():
+#             if not os.path.exists(os.path.join(os.getcwd(), "migrations")):
+#                 print("[INFO] Initializing migrations...")
+#                 subprocess.run(["flask", "db", "init"], check=True)
+#             else:
+#                 print("[INFO] Migrations already initialized. Skipping 'flask db init'.")
+
+#             print("[INFO] Running migrations...")
+#             subprocess.run(["flask", "db", "migrate", "-m", "Auto migration"], check=True)
+#             subprocess.run(["flask", "db", "upgrade"], check=True)
+
+#             print("[SUCCESS] Database migrations completed.")
+#     except subprocess.CalledProcessError as e:
+#         print(f"[ERROR] Migration failed: {e}")
+
 def run_migrations():
-    """Run Flask database migrations with app context"""
-    print("[INFO] Running database migrations...")     
+    """Run Flask database migrations only if needed."""
+    print("[INFO] Running database migrations...")
 
     os.environ["FLASK_APP"] = "/home/kollie/flask-project/ad-backend-flask-webhook/main.py"
 
@@ -142,17 +167,22 @@ def run_migrations():
         from app import db
 
         with application.app_context():
-            if not os.path.exists(os.path.join(os.getcwd(), "migrations")):
+            migration_path = os.path.join(os.getcwd(), "app/migrations")
+            if not os.path.exists(migration_path) or not os.listdir(migration_path):
                 print("[INFO] Initializing migrations...")
                 subprocess.run(["flask", "db", "init"], check=True)
             else:
                 print("[INFO] Migrations already initialized. Skipping 'flask db init'.")
 
-            print("[INFO] Running migrations...")
-            subprocess.run(["flask", "db", "migrate", "-m", "Auto migration"], check=True)
-            subprocess.run(["flask", "db", "upgrade"], check=True)
+            # Check if there are any new model changes before running migration
+            result = subprocess.run(["flask", "db", "migrate", "-m", "Auto migration"], capture_output=True, text=True)
+            if "No changes detected" in result.stdout:
+                print("[INFO] No changes detected in models. Skipping 'flask db migrate'.")
+            else:
+                print("[INFO] Running migrations...")
+                subprocess.run(["flask", "db", "upgrade"], check=True)
+                print("[SUCCESS] Database migrations completed.")
 
-            print("[SUCCESS] Database migrations completed.")
     except subprocess.CalledProcessError as e:
         print(f"[ERROR] Migration failed: {e}")
 
@@ -220,6 +250,62 @@ def run_migrations():
 #             print(f"[ERROR] Diet prediction for {username} failed: {response.json()}")
 
 
+# @app.route("/webhook", methods=["POST"])
+# def webhook():
+#     print("[INFO] Webhook triggered.")
+#     path_repo = "/home/kollie/flask-project/ad-backend-flask-webhook"
+#     servidor_web = "/var/www/kollie_pythonanywhere_com_wsgi.py"
+
+#     if request.is_json:
+#         payload = request.json
+#         if "repository" in payload:
+#             repo_name = payload["repository"]["name"]
+#             clone_url = payload["repository"]["clone_url"]
+
+#             try:
+#                 os.chdir(path_repo)
+#             except FileNotFoundError:
+#                 print("[ERROR] Repository path not found!")
+#                 return {"message": "The directory of the repository does not exist!"}, 404
+
+#             try:
+#                 print("[INFO] Running Git Pull...")
+#                 subprocess.run(["git", "pull", clone_url], check=True)
+#                 print("[SUCCESS] Git Pull Completed.")
+
+#                 from app import app
+#                 with app.app_context():
+#                     print("[INFO] Running Migrations...")
+#                     run_migrations()
+
+#                 #     print("[INFO] Registering Users...")
+#                 #     register_users()
+
+#                 #     print("[INFO] Logging in Users...")
+#                 #     user_tokens = login_users()
+
+#                 #     if user_tokens:
+#                 #         print("[INFO] Passing User Diet Data...")
+#                 #         pass_user_data(user_tokens)
+
+#                 #         print("[INFO] Training Model...")
+#                 #         train_model(user_tokens)
+
+#                 #         print("[INFO] Running Predictions...")
+#                 #         test_prediction(user_tokens)
+
+#                 subprocess.run(["touch", servidor_web], check=True)
+#                 print("[SUCCESS] Web server reloaded.")
+#                 return {"message": f"Webhook processed for {repo_name}."}, 200
+
+#             except subprocess.CalledProcessError as e:
+#                 print(f"[ERROR] Git pull failed: {str(e)}")
+#                 return {"message": f"Git pull error: {repo_name}"}, 500
+#     return {"message": "Invalid webhook payload"}, 400
+
+
+from threading import Thread
+
 @app.route("/webhook", methods=["POST"])
 def webhook():
     print("[INFO] Webhook triggered.")
@@ -238,37 +324,29 @@ def webhook():
                 print("[ERROR] Repository path not found!")
                 return {"message": "The directory of the repository does not exist!"}, 404
 
-            try:
-                print("[INFO] Running Git Pull...")
-                subprocess.run(["git", "pull", clone_url], check=True)
-                print("[SUCCESS] Git Pull Completed.")
+            # Run long processes in the background
+            def process_webhook():
+                try:
+                    print("[INFO] Running Git Pull...")
+                    subprocess.run(["git", "pull", clone_url], check=True)
+                    print("[SUCCESS] Git Pull Completed.")
 
-                from app import app
-                with app.app_context():
-                    print("[INFO] Running Migrations...")
-                    run_migrations()
+                    from app import app
+                    with app.app_context():
+                        print("[INFO] Running Migrations...")
+                        run_migrations()
 
-                #     print("[INFO] Registering Users...")
-                #     register_users()
+                    subprocess.run(["touch", servidor_web], check=True)
+                    print("[SUCCESS] Web server reloaded.")
 
-                #     print("[INFO] Logging in Users...")
-                #     user_tokens = login_users()
+                except subprocess.CalledProcessError as e:
+                    print(f"[ERROR] Git pull failed: {str(e)}")
 
-                #     if user_tokens:
-                #         print("[INFO] Passing User Diet Data...")
-                #         pass_user_data(user_tokens)
+            # Run webhook process in a separate thread to avoid GitHub timeout
+            thread = Thread(target=process_webhook)
+            thread.start()
 
-                #         print("[INFO] Training Model...")
-                #         train_model(user_tokens)
+            return {"message": f"Webhook received for {repo_name}, processing in background."}, 200
 
-                #         print("[INFO] Running Predictions...")
-                #         test_prediction(user_tokens)
-
-                subprocess.run(["touch", servidor_web], check=True)
-                print("[SUCCESS] Web server reloaded.")
-                return {"message": f"Webhook processed for {repo_name}."}, 200
-
-            except subprocess.CalledProcessError as e:
-                print(f"[ERROR] Git pull failed: {str(e)}")
-                return {"message": f"Git pull error: {repo_name}"}, 500
     return {"message": "Invalid webhook payload"}, 400
+
