@@ -373,10 +373,10 @@ def test_prediction(user_tokens):
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
+    """GitHub Webhook - Only Runs Migrations"""
     print("[INFO] Webhook triggered.")
     path_repo = "/home/kollie/flask-project/ad-backend-flask-webhook"
     servidor_web = "/var/www/kollie_pythonanywhere_com_wsgi.py"
-    BASE_URL = "https://kollie.pythonanywhere.com"
 
     if request.is_json:
         payload = request.json
@@ -390,46 +390,63 @@ def webhook():
                 print("[ERROR] Repository path not found!")
                 return {"message": "The directory of the repository does not exist!"}, 404
 
-            # Run long processes in the background
-            def process_webhook():
-                try:
-                    print("[INFO] Running Git Pull...")
-                    subprocess.run(["git", "pull", clone_url], check=True)
-                    print("[SUCCESS] Git Pull Completed.")
+            try:
+                print("[INFO] Running Git Pull...")
+                subprocess.run(["git", "pull", clone_url], check=True)
+                print("[SUCCESS] Git Pull Completed.")
 
-                    from app import app
-                    with app.app_context():
-                        print("[INFO] Running Migrations...")
-                        run_migrations()
+                from app import app
+                with app.app_context():
+                    print("[INFO] Running Migrations...")
+                    run_migrations()  # ✅ Only running migrations!
 
-                        print("[INFO] Registering Users...")
-                        register_users()
+                subprocess.run(["touch", servidor_web], check=True)
+                print("[SUCCESS] Web server reloaded.")
 
-                        print("[INFO] Logging in Users...")
-                        user_tokens = login_users()
+                return {"message": f"Webhook processed for {repo_name}, migrations completed."}, 200
 
-                        if user_tokens:
-                            print("[INFO] Passing User Diet Data...")
-                            pass_user_data(user_tokens)
-
-                            print("[INFO] Training Model...")
-                            train_model(user_tokens)
-
-                            print("[INFO] Running Predictions...")
-                            test_prediction(user_tokens)
-
-                    subprocess.run(["touch", servidor_web], check=True)
-                    print("[SUCCESS] Web server reloaded.")
-
-                except subprocess.CalledProcessError as e:
-                    print(f"[ERROR] Git pull failed: {str(e)}")
-
-            # Run webhook process in a separate thread to prevent timeouts
-            thread = Thread(target=process_webhook)
-            thread.start()
-
-            return {"message": f"Webhook received for {repo_name}, processing in background."}, 200
-
+            except subprocess.CalledProcessError as e:
+                print(f"[ERROR] Git pull failed: {str(e)}")
+                return {"message": f"Git pull error: {repo_name}"}, 500
     return {"message": "Invalid webhook payload"}, 400
+
+
+@app.route("/run-tasks", methods=["GET"])
+def run_tasks():
+    """Runs user registration, model training, and predictions in background."""
+    print("[INFO] Task runner triggered.")
+
+    def process_tasks():
+        try:
+            from app import app
+            with app.app_context():
+                print("[INFO] Registering Users...")
+                register_users()
+
+                print("[INFO] Logging in Users...")
+                user_tokens = login_users()
+
+                if user_tokens:
+                    print("[INFO] Passing User Diet Data...")
+                    pass_user_data(user_tokens)
+
+                    print("[INFO] Training Model...")
+                    train_model(user_tokens)
+
+                    print("[INFO] Running Predictions...")
+                    test_prediction(user_tokens)
+
+                print("[SUCCESS] All background tasks completed.")
+
+        except Exception as e:
+            print(f"[ERROR] Background task failed: {str(e)}")
+
+    # Run all tasks in a separate thread
+    thread = Thread(target=process_tasks)
+    thread.start()
+
+    return {"message": "Tasks are running in the background."}, 200
+
+
 
 
