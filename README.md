@@ -106,7 +106,7 @@ Flask-Marshmallow schemas help **serialize and deserialize data**.
 #### **1️⃣ Register a User**
 
 ```sh
-curl -X POST https://kollie.pythonanywhere.com/register      -H "Content-Type: application/json"      -d '{
+curl -X POST https://username.pythonanywhere.com/register      -H "Content-Type: application/json"      -d '{
            "first_name": "John",
            "last_name": "Doe",
            "username": "johndoe",
@@ -117,7 +117,7 @@ curl -X POST https://kollie.pythonanywhere.com/register      -H "Content-Type: a
 #### **2️⃣ Log In a User**
 
 ```sh
-curl -X POST https://kollie.pythonanywhere.com/login      -H "Content-Type: application/json"      -d '{
+curl -X POST https://username.pythonanywhere.com/login      -H "Content-Type: application/json"      -d '{
            "username": "johndoe",
            "password": "password123"
          }'
@@ -128,7 +128,7 @@ curl -X POST https://kollie.pythonanywhere.com/login      -H "Content-Type: appl
 #### **3️⃣ Save Diet Data**
 
 ```sh
-curl -X POST https://kollie.pythonanywhere.com/diet      -H "Content-Type: application/json"      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"      -d '{
+curl -X POST https://username.pythonanywhere.com/diet      -H "Content-Type: application/json"      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"      -d '{
            "age": 30,
            "gender": "Male",
            "height": 175,
@@ -142,7 +142,7 @@ curl -X POST https://kollie.pythonanywhere.com/diet      -H "Content-Type: appli
 #### **4️⃣ Get Diet Data**
 
 ```sh
-curl -X GET https://kollie.pythonanywhere.com/diet      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+curl -X GET https://username.pythonanywhere.com/diet      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
 ### 📌 Machine Learning Routes
@@ -150,13 +150,13 @@ curl -X GET https://kollie.pythonanywhere.com/diet      -H "Authorization: Beare
 #### **5️⃣ Train Model**
 
 ```sh
-curl -X POST https://kollie.pythonanywhere.com/train_model      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+curl -X POST https://username.pythonanywhere.com/train_model      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
 #### **6️⃣ Predict Diet Recommendation**
 
 ```sh
-curl -X POST https://kollie.pythonanywhere.com/predict_food      -H "Content-Type: application/json"      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+curl -X POST https://username.pythonanywhere.com/predict_food      -H "Content-Type: application/json"      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
 ---
@@ -189,14 +189,14 @@ A **GitHub webhook** is set up to:
    source ~/.virtualenvs/my-virtualenv/bin/activate
    pip install -r requirements.txt
    ```
-2. **Configured WSGI (`/var/www/kollie_pythonanywhere_com_wsgi.py`):**
+2. **Configured WSGI (`/var/www/username_pythonanywhere_com_wsgi.py`):**
 
    ```python
    import sys
    import os
 
-   project_path = "/home/kollie/flask-project/ad-backend-flask-webhook"
-   venv_path = "/home/kollie/.virtualenvs/my-virtualenv"
+   project_path = "/home/username/flask-project/ad-backend-flask-webhook"
+   venv_path = "/home/username/.virtualenvs/my-virtualenv"
 
    activate_this = os.path.join(venv_path, "bin", "activate_this.py")
    exec(open(activate_this).read(), dict(__file__=activate_this))
@@ -209,7 +209,7 @@ A **GitHub webhook** is set up to:
 
 3. **Restarted PythonAnywhere Web Server:**
    ```sh
-   touch /var/www/kollie_pythonanywhere_com_wsgi.py
+   touch /var/www/username_pythonanywhere_com_wsgi.py
    ```
 
 ---
