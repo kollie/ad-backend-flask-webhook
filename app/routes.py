@@ -424,7 +424,7 @@ def run_tasks():
                 register_users()
 
                 print("[INFO] Logging in Users...")
-                user_tokens = login_users()
+                user_tokens = login_users()  
 
                 if user_tokens:
                     print("[INFO] Passing User Diet Data...")
