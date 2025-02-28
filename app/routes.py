@@ -138,7 +138,8 @@ def run_migrations():
     os.environ["FLASK_APP"] = "/home/kollie/flask-project/ad-backend-flask-webhook/main.py"
 
     try:
-        from main import app, db  # Import inside function to avoid circular imports
+        from main import application as app  # Import inside function to avoid circular imports
+        from main import db
 
         with app.app_context():  
             if not os.path.exists(os.path.join(os.getcwd(), "migrations")):
