@@ -334,7 +334,9 @@ def webhook():
 
                     from app import app
                     with app.app_context():
+
                         print("[INFO] Running Migrations...")
+                        
                         run_migrations()
 
                         print("[INFO] Registering Users...")
