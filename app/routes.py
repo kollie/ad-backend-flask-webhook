@@ -311,6 +311,7 @@ def webhook():
     print("[INFO] Webhook triggered.")
     path_repo = "/home/kollie/flask-project/ad-backend-flask-webhook"
     servidor_web = "/var/www/kollie_pythonanywhere_com_wsgi.py"
+    BASE_URL = "https://kollie.pythonanywhere.com"
 
     if request.is_json:
         payload = request.json
