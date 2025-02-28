@@ -18,27 +18,30 @@ class TrainModelResource(Resource):
 class PredictFoodResource(Resource):
     @jwt_required()
     def post(self):
-        model = load_model()
-        if not model:
-            return {"message": "Model not trained yet"}, 400
-
-        # Get user input
-        input_data = request.get_json()
-        df_input = pd.DataFrame([input_data])
-
-        # Convert categorical data
-        df_input = pd.get_dummies(df_input)
-
-        # Ensure input has same columns as training data
-        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # Gets `/home/kollie/flask-project/ad-backend-flask-webhook/app/`
-
-        # ✅ Construct the correct file path
-        model_path = os.path.join(base_dir, "diet_model.pkl")
+        """Predict diet recommendation based on user input."""
+        base_dir = os.path.abspath(os.path.dirname(__file__))  # ✅ Correct base path
+        model_path = os.path.join(base_dir, "../diet_model.pkl")  # ✅ Ensure correct model path
+        features_path = os.path.join(base_dir, "../model_features.pkl")  # ✅ Ensure correct feature path
 
         print(f"[INFO] Loading model from: {model_path}")
 
-        model_features = joblib.load(model_path)  # Save feature columns separately
-        df_input = df_input.reindex(columns=model_features, fill_value=0)
+        # ✅ Load model
+        try:
+            model = joblib.load(model_path)
+            feature_columns = joblib.load(features_path)  # ✅ Load saved feature names
+        except FileNotFoundError:
+            return {"message": "Model not trained yet"}, 400
 
+        # ✅ Get user input
+        input_data = request.get_json()
+        df_input = pd.DataFrame([input_data])
+
+        # ✅ Convert categorical variables into dummy variables
+        df_input = pd.get_dummies(df_input)
+
+        # ✅ Ensure input has the same feature columns as training data
+        df_input = df_input.reindex(columns=feature_columns, fill_value=0)  # ✅ Fills missing columns with 0
+
+        # ✅ Make prediction
         prediction = model.predict(df_input)[0]
         return {"predicted_diet": prediction}, 200
