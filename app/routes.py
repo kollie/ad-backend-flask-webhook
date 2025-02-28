@@ -411,41 +411,86 @@ def webhook():
     return {"message": "Invalid webhook payload"}, 400
 
 
-@app.route("/run-tasks", methods=["GET"])
-def run_tasks():
-    """Runs user registration, model training, and predictions in background."""
-    print("[INFO] Task runner triggered.")
+@app.route("/run-migrations", methods=["GET"])
+def run_migrations_endpoint():
+    """Manually run database migrations inside Flask app context."""
+    print("[INFO] Running Migrations...")
+    try:
+        with app.app_context():
+            run_migrations()
+        return jsonify({"message": "Migrations completed successfully."}), 200
+    except Exception as e:
+        print(f"[ERROR] Migration failed: {str(e)}")
+        return jsonify({"message": f"Migration failed: {str(e)}"}), 500
 
-    def process_tasks():
-        try:
-            from app import app
-            with app.app_context():
-                print("[INFO] Registering Users...")
-                register_users()
 
-                print("[INFO] Logging in Users...")
-                user_tokens = login_users()  
+@app.route("/register-users", methods=["GET"])
+def register_users_endpoint():
+    """Manually register test users inside Flask app context."""
+    print("[INFO] Registering Users...")
+    try:
+        with app.app_context():
+            register_users()
+        return jsonify({"message": "Users registered successfully."}), 200
+    except Exception as e:
+        print(f"[ERROR] User registration failed: {str(e)}")
+        return jsonify({"message": f"User registration failed: {str(e)}"}), 500
 
-                if user_tokens:
-                    print("[INFO] Passing User Diet Data...")
-                    pass_user_data(user_tokens)
 
-                    print("[INFO] Training Model...")
-                    train_model(user_tokens)
+@app.route("/login-users", methods=["GET"])
+def login_users_endpoint():
+    """Manually log in users and retrieve JWT tokens inside Flask app context."""
+    print("[INFO] Logging in Users...")
+    try:
+        with app.app_context():
+            user_tokens = login_users()
+        return jsonify({"message": "Users logged in successfully.", "tokens": user_tokens}), 200
+    except Exception as e:
+        print(f"[ERROR] User login failed: {str(e)}")
+        return jsonify({"message": f"User login failed: {str(e)}"}), 500
 
-                    print("[INFO] Running Predictions...")
-                    test_prediction(user_tokens)
 
-                print("[SUCCESS] All background tasks completed.")
+@app.route("/pass-diet-data", methods=["GET"])
+def pass_diet_data_endpoint():
+    """Manually send diet data for users inside Flask app context."""
+    print("[INFO] Passing User Diet Data...")
+    try:
+        with app.app_context():
+            user_tokens = login_users()
+            pass_user_data(user_tokens)
+        return jsonify({"message": "Diet data passed successfully."}), 200
+    except Exception as e:
+        print(f"[ERROR] Passing diet data failed: {str(e)}")
+        return jsonify({"message": f"Passing diet data failed: {str(e)}"}), 500
 
-        except Exception as e:
-            print(f"[ERROR] Background task failed: {str(e)}")
 
-    # Run all tasks in a separate thread
-    thread = Thread(target=process_tasks)
-    thread.start()
+@app.route("/train-model", methods=["GET"])
+def train_model_endpoint():
+    """Manually train the machine learning model inside Flask app context."""
+    print("[INFO] Training Model...")
+    try:
+        with app.app_context():
+            user_tokens = login_users()
+            train_model(user_tokens)
+        return jsonify({"message": "Model trained successfully."}), 200
+    except Exception as e:
+        print(f"[ERROR] Model training failed: {str(e)}")
+        return jsonify({"message": f"Model training failed: {str(e)}"}), 500
 
-    return {"message": "Tasks are running in the background."}, 200
+
+@app.route("/run-predictions", methods=["GET"])
+def run_predictions_endpoint():
+    """Manually run predictions for users inside Flask app context."""
+    print("[INFO] Running Predictions...")
+    try:
+        with app.app_context():
+            user_tokens = login_users()
+            test_prediction(user_tokens)
+        return jsonify({"message": "Predictions completed successfully."}), 200
+    except Exception as e:
+        print(f"[ERROR] Predictions failed: {str(e)}")
+        return jsonify({"message": f"Predictions failed: {str(e)}"}), 500
+
 
 
 
