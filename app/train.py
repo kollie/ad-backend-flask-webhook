@@ -12,7 +12,7 @@ def train_model():
     base_dir = os.path.abspath(os.path.dirname(__file__))  # Gets `/home/kollie/flask-project/ad-backend-flask-webhook/app/`
 
     # ✅ Construct the correct file path
-    data_path = os.path.join(base_dir, "data/diet_data.csv")  # ✅ Looks inside `app/data/`
+    data_path = os.path.join(base_dir, "data/Diet_Data.csv")  # ✅ Looks inside `app/data/`
 
     print(f"[INFO] Loading dataset from: {data_path}")  # Debugging line
 
