@@ -3,6 +3,7 @@ import pickle
 import subprocess
 import time
 import requests
+from threading import Thread
 
 import numpy as np
 import pandas as pd  
@@ -304,7 +305,71 @@ def test_prediction(user_tokens):
 #     return {"message": "Invalid webhook payload"}, 400
 
 
-from threading import Thread
+# from threading import Thread
+
+# @app.route("/webhook", methods=["POST"])
+# def webhook():
+#     print("[INFO] Webhook triggered.")
+#     path_repo = "/home/kollie/flask-project/ad-backend-flask-webhook"
+#     servidor_web = "/var/www/kollie_pythonanywhere_com_wsgi.py"
+#     BASE_URL = "https://kollie.pythonanywhere.com"
+
+#     if request.is_json:
+#         payload = request.json
+#         if "repository" in payload:
+#             repo_name = payload["repository"]["name"]
+#             clone_url = payload["repository"]["clone_url"]
+
+#             try:
+#                 os.chdir(path_repo)
+#             except FileNotFoundError:
+#                 print("[ERROR] Repository path not found!")
+#                 return {"message": "The directory of the repository does not exist!"}, 404
+
+#             # Run long processes in the background
+#             def process_webhook():
+#                 try:
+#                     print("[INFO] Running Git Pull...")
+#                     subprocess.run(["git", "pull", clone_url], check=True)
+#                     print("[SUCCESS] Git Pull Completed.")
+
+#                     from app import app
+#                     with app.app_context():  
+
+#                         print("[INFO] Running Migrations...")
+
+#                         run_migrations()
+
+#                         print("[INFO] Registering Users...")
+#                         register_users()
+
+#                         print("[INFO] Logging in Users...")
+#                         user_tokens = login_users()
+
+#                         if user_tokens:
+#                                 print("[INFO] Passing User Diet Data...")
+#                                 pass_user_data(user_tokens)
+
+#                                 print("[INFO] Training Model...")
+#                                 train_model(user_tokens)
+
+#                                 print("[INFO] Running Predictions...")
+#                                 test_prediction(user_tokens)
+
+#                     subprocess.run(["touch", servidor_web], check=True)
+#                     print("[SUCCESS] Web server reloaded.")
+
+#                 except subprocess.CalledProcessError as e:
+#                     print(f"[ERROR] Git pull failed: {str(e)}")
+
+#             # Run webhook process in a separate thread to avoid GitHub timeout
+#             thread = Thread(target=process_webhook)
+#             thread.start()
+
+#             return {"message": f"Webhook received for {repo_name}, processing in background."}, 200
+
+#     return {"message": "Invalid webhook payload"}, 400
+
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
@@ -333,10 +398,8 @@ def webhook():
                     print("[SUCCESS] Git Pull Completed.")
 
                     from app import app
-                    with app.app_context():  
-
+                    with app.app_context():
                         print("[INFO] Running Migrations...")
-
                         run_migrations()
 
                         print("[INFO] Registering Users...")
@@ -346,14 +409,14 @@ def webhook():
                         user_tokens = login_users()
 
                         if user_tokens:
-                                print("[INFO] Passing User Diet Data...")
-                                pass_user_data(user_tokens)
+                            print("[INFO] Passing User Diet Data...")
+                            pass_user_data(user_tokens)
 
-                                print("[INFO] Training Model...")
-                                train_model(user_tokens)
+                            print("[INFO] Training Model...")
+                            train_model(user_tokens)
 
-                                print("[INFO] Running Predictions...")
-                                test_prediction(user_tokens)
+                            print("[INFO] Running Predictions...")
+                            test_prediction(user_tokens)
 
                     subprocess.run(["touch", servidor_web], check=True)
                     print("[SUCCESS] Web server reloaded.")
@@ -361,11 +424,12 @@ def webhook():
                 except subprocess.CalledProcessError as e:
                     print(f"[ERROR] Git pull failed: {str(e)}")
 
-            # Run webhook process in a separate thread to avoid GitHub timeout
+            # Run webhook process in a separate thread to prevent timeouts
             thread = Thread(target=process_webhook)
             thread.start()
 
             return {"message": f"Webhook received for {repo_name}, processing in background."}, 200
 
     return {"message": "Invalid webhook payload"}, 400
+
 
