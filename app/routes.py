@@ -133,7 +133,7 @@ test_diet_data = {
 
 def run_migrations():
     """Run Flask database migrations with app context"""
-    print("[INFO] Running database migrations...")
+    print("[INFO] Running database migrations...")     
 
     os.environ["FLASK_APP"] = "/home/kollie/flask-project/ad-backend-flask-webhook/main.py"
 
