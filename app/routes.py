@@ -19,7 +19,8 @@ from app import app, jwt, api
 
 from app.resources.user import UserRegister, UserLogin, DietDataResource
 from app.resources.food import TrainModelResource, PredictFoodResource
-from app.resources.result import AllUsersWithDietData
+from app.resources.result import AllUsersWithDietData, UserDietByID, UserDietByQuery
+
 
 os.chdir(os.path.dirname(__file__))
     
@@ -42,6 +43,9 @@ api.add_resource(PredictFoodResource, "/predict_food")
 
 # return result
 api.add_resource(AllUsersWithDietData, "/users_diet_data")
+
+api.add_resource(UserDietByID, "/user_diet/<int:user_id>")
+api.add_resource(UserDietByQuery, "/user_diet_query")
 
 # Route to endpoint /api/v1/predict
 
