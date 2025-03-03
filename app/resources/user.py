@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import json
 from flask import request
 from flask_jwt_extended import (
@@ -6,7 +6,8 @@ from flask_jwt_extended import (
     create_refresh_token,
     get_jwt,
     get_jwt_identity,
-    jwt_required
+    jwt_required,
+    decode_token
 )
 from flask_restful import Resource
 from app.models import Users, DietData
@@ -45,11 +46,14 @@ class UserLogin(Resource):
         if not user or not user.check_password(user_data.get("password")):
             return {"message": "Invalid credentials"}, 401
 
-        expires = datetime.now() + timedelta(hours=24)
-
         # ✅ Convert user.id to a string
         access_token = create_access_token(identity=str(user.id), fresh=True)
         refresh_token = create_refresh_token(str(user.id))
+
+        # ✅ Decode the access token to get expiration time
+        decoded_token = decode_token(access_token)
+        expiration_timestamp = decoded_token["exp"]
+        expiration_time = datetime.fromtimestamp(expiration_timestamp, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
         return {
             "access_token": access_token,
@@ -58,7 +62,7 @@ class UserLogin(Resource):
             "first_name": user.first_name,
             "last_name": user.last_name,
             "user_id": user.id,
-            "token_expires": expires.strftime("%Y-%m-%d %H:%M:%S.%f")
+            "token_expiration_time": expiration_time  # ✅ Return expiration time
         }, 200
     
 
