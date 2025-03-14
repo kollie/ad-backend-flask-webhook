@@ -66,20 +66,48 @@ class UserLogin(Resource):
         }, 200
     
 
-
 class DietDataResource(Resource):
-    @jwt_required()  # Protect the route
+    @jwt_required()
     def post(self):
-        user_id = get_jwt_identity()  # Get logged-in user ID from JWT
+        """Creates or updates a user's diet data."""
+        user_id = get_jwt_identity()  # Get logged-in user ID
 
-        # Deserialize request data
-        diet_data = diet_data_schema.load(request.get_json())
-        diet_data.user_id = user_id  # Assign user ID
+        # Deserialize request data using Marshmallow
+        request_data = diet_data_schema.load(request.get_json())
 
-        # Save to database
-        diet_data.save_to_db()
+        # Check if diet data for the user already exists
+        existing_diet_data = DietData.query.filter_by(user_id=user_id).first()
 
-        return {"message": "Diet data saved successfully", "diet_id": diet_data.id}, 201
+        if existing_diet_data:
+            # Update existing diet data using deserialized request data
+            for key, value in request_data.items():
+                setattr(existing_diet_data, key, value)
+
+            existing_diet_data.updated_at = datetime.now()
+            request_data.save_to_db()
+
+            return {"message": "Diet data updated successfully", "diet_id": existing_diet_data.id}, 200
+
+        # Create new diet data entry if it does not exist
+        request_data.user_id = user_id
+        request_data.save_to_db()
+
+        return {"message": "Diet data saved successfully", "diet_id": request_data.id}, 201
+    
+
+# class DietDataResource(Resource):
+#     @jwt_required()  # Protect the route
+#     def post(self):
+#         user_id = get_jwt_identity()  # Get logged-in user ID from JWT
+
+#         # Deserialize request data
+#         diet_data = diet_data_schema.load(request.get_json())
+#         diet_data.user_id = user_id  # Assign user ID
+
+#         # Save to database
+#         diet_data.save_to_db()
+
+#         return {"message": "Diet data saved successfully", "diet_id": diet_data.id}, 201
 
     @jwt_required()
     def get(self):
