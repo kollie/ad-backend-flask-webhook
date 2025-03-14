@@ -73,26 +73,26 @@ class DietDataResource(Resource):
         user_id = get_jwt_identity()  # Get logged-in user ID
 
         # Deserialize request data using Marshmallow
-        request_data = diet_data_schema.load(request.get_json())
+        request_data = request.get_json()
 
         # Check if diet data for the user already exists
         existing_diet_data = DietData.query.filter_by(user_id=user_id).first()
 
         if existing_diet_data:
-            # Update existing diet data using deserialized request data
-            for key, value in request_data.items():
-                setattr(existing_diet_data, key, value)
+            # Use Marshmallow to update existing data with new request values
+            updated_diet_data = diet_data_schema.load(request_data, instance=existing_diet_data, partial=True)
 
-            existing_diet_data.updated_at = datetime.now()
-            request_data.save_to_db()
-
-            return {"message": "Diet data updated successfully", "diet_id": existing_diet_data.id}, 200
+            updated_diet_data.save_to_db()
+            return {"message": "Diet data updated successfully", "diet_id": updated_diet_data.id}, 200
 
         # Create new diet data entry if it does not exist
-        request_data.user_id = user_id
-        request_data.save_to_db()
+        # request_data["user_id"] = user_id  # Ensure user_id is set
+        new_diet_data = diet_data_schema.load(request_data)
+        new_diet_data.user_id = user_id
 
-        return {"message": "Diet data saved successfully", "diet_id": request_data.id}, 201
+        new_diet_data.save_to_db()
+
+        return {"message": "Diet data saved successfully", "diet_id": new_diet_data.id}, 201
     
 
 # class DietDataResource(Resource):
