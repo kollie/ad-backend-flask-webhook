@@ -5,13 +5,13 @@ import { Platform } from 'react-native';
 import axios from 'axios';
 
 interface AuthContextType {
-  signIn: (token: string) => Promise<void>;
+  signIn: (token: string, userId: number) => Promise<void>;
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
   token: string | null;
+  userId: number | null;
 }
 
-// Web-compatible storage implementation
 const storage = {
   async setItem(key: string, value: string) {
     if (Platform.OS === 'web') {
@@ -40,33 +40,41 @@ const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
   isAuthenticated: false,
   token: null,
+  userId: null,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
   const segments = useSegments();
 
-  // Check for existing token on mount
   useEffect(() => {
-    const checkToken = async () => {
+    const checkAuth = async () => {
       try {
-        const storedToken = await storage.getItem('token');
-        if (storedToken) {
+        const [storedToken, storedUserId] = await Promise.all([
+          storage.getItem('token'),
+          storage.getItem('userId'),
+        ]);
+
+        if (storedToken && storedUserId) {
           setToken(storedToken);
-          axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+          setUserId(Number(storedUserId));
+          axios.defaults.headers.common[
+            'Authorization'
+          ] = `Bearer ${storedToken}`;
           setIsAuthenticated(true);
         }
       } catch (error) {
         console.warn('Error checking authentication:', error);
       }
     };
-    checkToken();
+    checkAuth();
   }, []);
 
   useEffect(() => {
     const inAuthGroup = segments[0] === '(auth)';
-    
+
     if (!isAuthenticated && !inAuthGroup) {
       router.replace('/login');
     } else if (isAuthenticated && inAuthGroup) {
@@ -74,32 +82,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isAuthenticated, segments]);
 
-  const signIn = async (newToken: string) => {
+  const signIn = async (token: string, userId: number) => {
+    if (!token || !userId) {
+      throw new Error('Token and user ID are required');
+    }
+
     try {
-      await storage.setItem('token', newToken);
-      setToken(newToken);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+      await Promise.all([
+        storage.setItem('token', token),
+        storage.setItem('userId', String(userId)),
+      ]);
+
+      setToken(token);
+      setUserId(userId);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setIsAuthenticated(true);
     } catch (error) {
-      console.error('Error storing authentication token:', error);
+      console.error('Error storing authentication data:', error);
       throw new Error('Failed to sign in');
     }
   };
 
   const signOut = async () => {
     try {
-      await storage.removeItem('token');
+      await Promise.all([
+        storage.removeItem('token'),
+        storage.removeItem('userId'),
+      ]);
       setToken(null);
+      setUserId(null);
       delete axios.defaults.headers.common['Authorization'];
       setIsAuthenticated(false);
     } catch (error) {
-      console.error('Error removing authentication token:', error);
+      console.error('Error removing authentication data:', error);
       throw new Error('Failed to sign out');
     }
   };
 
   return (
-    <AuthContext.Provider value={{ signIn, signOut, isAuthenticated, token }}>
+    <AuthContext.Provider
+      value={{
+        signIn,
+        signOut,
+        isAuthenticated,
+        token,
+        userId,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
